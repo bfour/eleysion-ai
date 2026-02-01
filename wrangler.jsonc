@@ -1,0 +1,13 @@
+{
+	"name": "eleysion-ai",
+	"main": "src/index.ts",
+	"compatibility_date": "2023-10-01",
+	"vars": {
+		"ALLOWED_API_KEYS": "",
+		"OPENROUTER_API_KEY": "",
+		"OPENROUTER_ENDPOINT": "https://openrouter.ai/api/v1/chat/completions"
+	},
+	"observability": {
+		"enabled": true
+	}
+}
