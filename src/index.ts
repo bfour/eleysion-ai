@@ -62,6 +62,9 @@ export default {
       const formData = await request.formData();
       const imageFile = formData.get('image') as File | null;
       const pdfFile = formData.get('pdf') as File | null;
+      // Default to false, unless explicitly set to true
+      const expectJsonRaw = formData.get('expectJson');
+      const expectJson = expectJsonRaw === 'true';
 
       const allowedApiKeys = env.ALLOWED_API_KEYS.split(',')
          .map((key) => key.trim())
@@ -143,19 +146,27 @@ export default {
          console.log('Received response from OpenRouter:', json);
          // Extract only the message.content from the first choice
          const content = json.choices?.[0]?.message?.content ?? null;
-         const jsonMatch = content?.match(jsonRegex);
-         const extractedJson = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
 
-         if (extractedJson == null) {
-            return new Response('Invalid response from OpenRouter: cannot extract any JSON', { status: 502, headers: corsHeaders });
+         if (expectJson) {
+            const jsonMatch = content?.match(jsonRegex);
+            const extractedJson = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+
+            if (extractedJson == null) {
+               return new Response('Invalid response from OpenRouter: cannot extract any JSON', { status: 502, headers: corsHeaders });
+            }
+
+            console.log('Extracted JSON:', extractedJson);
+
+            return new Response(JSON.stringify(extractedJson), {
+               status: 200,
+               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+         } else {
+            return new Response(JSON.stringify({ response: content }), {
+               status: 200,
+               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
          }
-
-         console.log('Extracted JSON:', extractedJson);
-
-         return new Response(JSON.stringify(extractedJson), {
-            status: 200,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-         });
       } catch (error) {
          console.error('Error forwarding to OpenRouter:', error);
          return new Response('Error from OpenRouter service', { status: 502, headers: corsHeaders });
