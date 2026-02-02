@@ -36,7 +36,8 @@ prompt: "Summarize this document"
 - `model` (optional): OpenRouter model ID to use (default: `google/gemini-2.0-flash-lite-preview-02-05:free`)
 - `image` (optional): Image file to analyze
 - `pdf` (optional): PDF file to process
-- `expectJson` (optional): "true" or "false" (default). If true, enforces JSON extraction from response.
+- `jsonSchema` (optional): A JSON string representing a JSON schema. The response will be validated against this schema.
+- `expectJson` (optional): "true" or "false". Defaults to "false", unless `jsonSchema` is provided, then it defaults to "true".
 
 You can provide any combination of files and text.
 

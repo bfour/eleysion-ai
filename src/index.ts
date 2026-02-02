@@ -13,6 +13,8 @@
 
 /// <reference lib="webworker" />
 
+import Ajv from 'ajv';
+
 type Env = {
    ALLOWED_API_KEYS: string;
    OPENROUTER_API_KEY: string;
@@ -62,13 +64,14 @@ export default {
       const pdfFile = formData.get('pdf') as File | null;
       const prompt = formData.get('prompt') as string | null;
       const model = (formData.get('model') as string) || 'google/gemini-2.0-flash-lite-preview-02-05:free';
+      const jsonSchemaString = formData.get('jsonSchema') as string | null;
 
       if (!prompt) {
          return new Response('Missing prompt field', { status: 400, headers: corsHeaders });
       }
-      // Default to false, unless explicitly set to true
+      // Default to false, unless explicitly set to true or a schema is provided
       const expectJsonRaw = formData.get('expectJson');
-      const expectJson = expectJsonRaw === 'true';
+      const expectJson = expectJsonRaw === 'true' || !!jsonSchemaString;
 
       const allowedApiKeys = env.ALLOWED_API_KEYS.split(',')
          .map((key) => key.trim())
@@ -158,6 +161,20 @@ export default {
 
             if (extractedJson == null) {
                return new Response('Invalid response from OpenRouter: cannot extract any JSON', { status: 502, headers: corsHeaders });
+            }
+
+            if (jsonSchemaString) {
+               try {
+                  const items = JSON.parse(jsonSchemaString); // To check if it is a valid json
+                  const ajv = new Ajv();
+                  const validate = ajv.compile(items);
+                  const valid = validate(extractedJson);
+                  if (!valid) {
+                     return new Response(`JSON Validation Error: ${JSON.stringify(validate.errors)}`, { status: 502, headers: corsHeaders });
+                  }
+               } catch (e) {
+                  return new Response(`Invalid JSON Schema provided: ${e}`, { status: 400, headers: corsHeaders });
+               }
             }
 
             console.log('Extracted JSON:', extractedJson);
