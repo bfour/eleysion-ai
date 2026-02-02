@@ -170,7 +170,10 @@ export default {
                   const validate = ajv.compile(items);
                   const valid = validate(extractedJson);
                   if (!valid) {
-                     return new Response(`JSON Validation Error: ${JSON.stringify(validate.errors)}`, { status: 502, headers: corsHeaders });
+                     return new Response(`JSON Validation Error: ${JSON.stringify(validate.errors)}`, {
+                        status: 502,
+                        headers: corsHeaders,
+                     });
                   }
                } catch (e) {
                   return new Response(`Invalid JSON Schema provided: ${e}`, { status: 400, headers: corsHeaders });
