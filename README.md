@@ -33,6 +33,7 @@ prompt: "Summarize this document"
 ### Fields
 
 - `prompt` (required): Custom text prompt for the model
+- `model` (optional): OpenRouter model ID to use (default: `google/gemini-2.0-flash-lite-preview-02-05:free`)
 - `image` (optional): Image file to analyze
 - `pdf` (optional): PDF file to process
 - `expectJson` (optional): "true" or "false" (default). If true, enforces JSON extraction from response.

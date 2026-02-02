@@ -61,6 +61,7 @@ export default {
       const imageFile = formData.get('image') as File | null;
       const pdfFile = formData.get('pdf') as File | null;
       const prompt = formData.get('prompt') as string | null;
+      const model = (formData.get('model') as string) || 'google/gemini-2.0-flash-lite-preview-02-05:free';
 
       if (!prompt) {
          return new Response('Missing prompt field', { status: 400, headers: corsHeaders });
@@ -119,7 +120,7 @@ export default {
 
          // Prepare OpenRouter API call
          const openRouterPayload = {
-            model: 'meta-llama/llama-4-maverick:free',
+            model: model,
             messages: [
                {
                   role: 'user',
