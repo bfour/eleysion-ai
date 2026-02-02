@@ -16,6 +16,7 @@ Authorization: Bearer <your-api-key>
 Content-Type: multipart/form-data
 
 image: <image-file>
+prompt: "Describe this image"
 ```
 
 or
@@ -26,15 +27,17 @@ Authorization: Bearer <your-api-key>
 Content-Type: multipart/form-data
 
 pdf: <pdf-file>
+prompt: "Summarize this document"
 ```
 
 ### Fields
 
+- `prompt` (required): Custom text prompt for the model
 - `image` (optional): Image file to analyze
 - `pdf` (optional): PDF file to process
 - `expectJson` (optional): "true" or "false" (default). If true, enforces JSON extraction from response.
 
-Both fields are optional. The prompt will be sent regardless.
+You can provide any combination of files and text.
 
 ### Response
 

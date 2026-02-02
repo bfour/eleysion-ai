@@ -13,8 +13,6 @@
 
 /// <reference lib="webworker" />
 
-import { prompt } from './prompt';
-
 type Env = {
    ALLOWED_API_KEYS: string;
    OPENROUTER_API_KEY: string;
@@ -62,6 +60,11 @@ export default {
       const formData = await request.formData();
       const imageFile = formData.get('image') as File | null;
       const pdfFile = formData.get('pdf') as File | null;
+      const prompt = formData.get('prompt') as string | null;
+
+      if (!prompt) {
+         return new Response('Missing prompt field', { status: 400, headers: corsHeaders });
+      }
       // Default to false, unless explicitly set to true
       const expectJsonRaw = formData.get('expectJson');
       const expectJson = expectJsonRaw === 'true';
