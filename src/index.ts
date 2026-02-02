@@ -61,10 +61,7 @@ export default {
 
       const formData = await request.formData();
       const imageFile = formData.get('image') as File | null;
-
-      if (!imageFile) {
-         return new Response('Missing image field', { status: 400, headers: corsHeaders });
-      }
+      const otherFile = formData.get('file') as File | null;
 
       const allowedApiKeys = env.ALLOWED_API_KEYS.split(',')
          .map((key) => key.trim())
@@ -75,15 +72,44 @@ export default {
 
       // Forward image to OpenRouter (meta-llama/llama-4-maverick:free)
       try {
-         console.log('Forwarding image to OpenRouter with meta-llama/llama-4-maverick:free');
-         // Read image as base64
-         const arrayBuffer = await imageFile.arrayBuffer();
-         const uint8Array = new Uint8Array(arrayBuffer);
-         let binary = '';
-         for (let i = 0; i < uint8Array.length; i++) {
-            binary += String.fromCharCode(uint8Array[i]);
+         console.log('Forwarding to OpenRouter with meta-llama/llama-4-maverick:free');
+         // Build content array with prompt and files
+         const contentArray: Array<{ type: string; text?: string; image_url?: string }> = [
+            {
+               type: 'text',
+               text: prompt,
+            },
+         ];
+
+         // Add image if provided
+         if (imageFile) {
+            const imageArrayBuffer = await imageFile.arrayBuffer();
+            const imageUint8Array = new Uint8Array(imageArrayBuffer);
+            let imageBinary = '';
+            for (let i = 0; i < imageUint8Array.length; i++) {
+               imageBinary += String.fromCharCode(imageUint8Array[i]);
+            }
+            const imageBase64String = btoa(imageBinary);
+            contentArray.push({
+               type: 'image_url',
+               image_url: `data:${imageFile.type};base64,${imageBase64String}`,
+            });
          }
-         const base64String = btoa(binary);
+
+         // Add file if provided (as base64 text for now)
+         if (otherFile) {
+            const fileArrayBuffer = await otherFile.arrayBuffer();
+            const fileUint8Array = new Uint8Array(fileArrayBuffer);
+            let fileBinary = '';
+            for (let i = 0; i < fileUint8Array.length; i++) {
+               fileBinary += String.fromCharCode(fileUint8Array[i]);
+            }
+            const fileBase64String = btoa(fileBinary);
+            contentArray.push({
+               type: 'text',
+               text: `File: ${otherFile.name}\nType: ${otherFile.type}\nContent (base64):\n${fileBase64String}`,
+            });
+         }
 
          // Prepare OpenRouter API call
          const openRouterPayload = {
@@ -91,16 +117,7 @@ export default {
             messages: [
                {
                   role: 'user',
-                  content: [
-                     {
-                        type: 'text',
-                        text: prompt,
-                     },
-                     {
-                        type: 'image_url',
-                        image_url: `data:${imageFile.type};base64,${base64String}`,
-                     },
-                  ],
+                  content: contentArray,
                },
             ],
          };

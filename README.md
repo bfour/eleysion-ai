@@ -9,6 +9,7 @@ This worker exposes a POST endpoint that accepts an image and an API key. If the
 - Authentication: `Authorization: Bearer <api_key>` header
 
 ### Request Format
+
 ```
 POST /
 Authorization: Bearer <your-api-key>
@@ -17,13 +18,28 @@ Content-Type: multipart/form-data
 image: <image-file>
 ```
 
+or
+
+```
+POST /
+Authorization: Bearer <your-api-key>
+Content-Type: multipart/form-data
+
+file: <file>
+```
+
 ### Fields
-- `image`: The image file (multipart form data field)
+
+- `image` (optional): Image file to analyze
+- `file` (optional): Additional file to process
+
+Both fields are optional. The prompt will be sent regardless.
 
 ### Response
+
 - `200`: JSON response from OpenRouter with extracted data
 - `401`: Unauthorized (missing or invalid API key)
-- `400`: Bad request (missing image or wrong content type)
+- `400`: Bad request (wrong content type)
 - `405`: Method not allowed
 - `502`: Error from OpenRouter service
 
