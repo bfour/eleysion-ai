@@ -25,13 +25,13 @@ POST /
 Authorization: Bearer <your-api-key>
 Content-Type: multipart/form-data
 
-file: <file>
+pdf: <pdf-file>
 ```
 
 ### Fields
 
 - `image` (optional): Image file to analyze
-- `file` (optional): Additional file to process
+- `pdf` (optional): PDF file to process
 
 Both fields are optional. The prompt will be sent regardless.
 

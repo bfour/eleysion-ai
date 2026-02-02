@@ -61,7 +61,7 @@ export default {
 
       const formData = await request.formData();
       const imageFile = formData.get('image') as File | null;
-      const otherFile = formData.get('file') as File | null;
+      const pdfFile = formData.get('pdf') as File | null;
 
       const allowedApiKeys = env.ALLOWED_API_KEYS.split(',')
          .map((key) => key.trim())
@@ -96,18 +96,18 @@ export default {
             });
          }
 
-         // Add file if provided (as base64 text for now)
-         if (otherFile) {
-            const fileArrayBuffer = await otherFile.arrayBuffer();
-            const fileUint8Array = new Uint8Array(fileArrayBuffer);
-            let fileBinary = '';
-            for (let i = 0; i < fileUint8Array.length; i++) {
-               fileBinary += String.fromCharCode(fileUint8Array[i]);
+         // Add pdf if provided
+         if (pdfFile) {
+            const pdfArrayBuffer = await pdfFile.arrayBuffer();
+            const pdfUint8Array = new Uint8Array(pdfArrayBuffer);
+            let pdfBinary = '';
+            for (let i = 0; i < pdfUint8Array.length; i++) {
+               pdfBinary += String.fromCharCode(pdfUint8Array[i]);
             }
-            const fileBase64String = btoa(fileBinary);
+            const pdfBase64String = btoa(pdfBinary);
             contentArray.push({
-               type: 'text',
-               text: `File: ${otherFile.name}\nType: ${otherFile.type}\nContent (base64):\n${fileBase64String}`,
+               type: 'image_url',
+               image_url: `data:application/pdf;base64,${pdfBase64String}`,
             });
          }
 
