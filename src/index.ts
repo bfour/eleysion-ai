@@ -143,7 +143,7 @@ export default {
          });
 
          if (!openRouterResponse.ok) {
-				console.error('OpenRouter response not ok:', await openRouterResponse.text());
+            console.error('OpenRouter response not ok:', await openRouterResponse.text());
             return new Response('Error from OpenRouter service', { status: 502, headers: corsHeaders });
          }
 
